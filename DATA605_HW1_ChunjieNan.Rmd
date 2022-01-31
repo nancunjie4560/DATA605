@@ -1,0 +1,168 @@
+---
+title: "DATA605_HW1_ChunjieNan"
+author: "Chunjie Nan"
+date: "1/30/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+One of the most useful applications for linear algebra in data science is image manipulation.  We often need to compress, expand, warp, skew, etc. images.  To do so, we left multiply a transformation matrix by each of the point vectors.  
+
+For this assignment, build the first letters for both your first and last name using point plots in R.  For example, the following code builds an H.
+
+x=c(rep(0,500),seq(0,1,length.out=1000), rep(1,500))
+
+y=c(seq(-1,1,length.out=500),rep(0,1000), seq(-1,1,length.out=500))
+
+z=rbind(x,y)
+
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3))
+
+Then, write R code that will left multiply (%>%) a square matrix (x) against each of the vectors of points (y). Initially, that square matrix will be the Identity matrix.  
+
+Use a loop that changes the transformation matrix incrementally to demonstrate 1) shear, 2) scaling, 3)  rotation , and 4) projection in animated fashion.  
+
+
+```{r}
+library(dplyr)
+library(plotly)
+library(gifski)
+library(anim.plots)
+```
+
+
+My name is Chunjie Nan, therefore, the letters that I would like to plot is "CN". 
+
+```{r}
+x=c(rep(0,100), cos(seq(pi,pi*0.15,length.out=2000)/2), seq(1,1,length.out=100), sin(seq(pi*0.01,pi*-1,length.out=2000))/1.6-0.5)
+y=c(seq(-0.8,0.8,length.out=100),seq(1,-1,length.out=2000),seq(1,-1,length.out=100), seq(-0.8,1,length.out=2000))
+
+binded=rbind(x,y)
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3), col='Blue')
+```
+
+
+## leftMultiply function
+
+```{r}
+leftMultiply  <- function(x,y){
+   x %*% y
+}
+leftMultiply(matrix(rep(seq(1,3, length.out=3),3), nrow = 3, ncol = 3),diag(3))
+
+```
+
+## Shearing movement
+
+```{r}
+
+for (i in seq(0,1,length.out=20)) {
+  z<-apply(binded,2,function(x) leftMultiply(x,matrix(c(1,i,0,1),nrow=2,ncol=2)))
+ # plot(z[2,]~z[1,], xlim=c(-3,3), ylim=c(-3,3), col='Blue')
+
+}
+
+
+img_sh <- list("000003.png", "000004.png", "000005.png",
+            "000006.png", "000007.png", "000008.png", 
+            "000009.png","000010.png","000011.png","000012.png","000013.png","000014.png","000015.png","000017.png","00000a.png","00000b.png","00000c.png","00000d.png","00000e.png","00000f.png")
+
+list_sh <- lapply(img_sh, magick::image_read)
+
+# join the images together
+sh_joined <- magick::image_join(list_sh)
+
+# animate at 1 frames per second
+sh_animated <- magick::image_animate(sh_joined, fps = 1)
+
+# view animated image
+sh_animated
+
+```
+
+
+
+
+
+
+
+## Scaling
+
+```{r}
+for (i in seq(1,4,length.out=20)) {
+  z<-apply(binded,2,function(x) leftMultiply(x,matrix(c(i,0,0,i),nrow=2,ncol=2)))
+   #plot(z[2,]~z[1,], xlim=c(-3,3), ylim=c(-3,3), col='Blue')
+}
+
+img_sc <- list("2.png", "3.png", "4.png",
+            "5.png", "6.png", "7.png", 
+            "8.png","9.png","10.png","11.png","12.png","13.png","14.png","15.png","16.png","17.png","18.png","19.png","20.png","21.png")
+
+list_sc <- lapply(img_sc, magick::image_read)
+
+# join the images together
+sc_joined <- magick::image_join(list_sc)
+
+# animate at 1 frames per second
+sc_animated <- magick::image_animate(sc_joined, fps = 1)
+
+# view animated image
+sc_animated
+```
+
+
+
+## Rotation
+
+```{r}
+for (i in seq(0,pi*4,length.out=20)) {
+  z<-apply(binded,2,function(x) leftMultiply(x,matrix(c(cos(i),-sin(i),sin(i),cos(i)),nrow=2,ncol=2)))
+   #plot(z[2,]~z[1,], xlim=c(-3,3), ylim=c(-3,3), col='Blue')
+}
+
+
+img_r <- list("22.png", "23.png", "24.png",
+            "25.png", "26.png", "27.png", 
+            "28.png","29.png","30.png","31.png","32.png","33.png","34.png","35.png","36.png","37.png","38.png","39.png","40.png","41.png")
+
+list_r <- lapply(img_r, magick::image_read)
+
+# join the images together
+r_joined <- magick::image_join(list_r)
+
+# animate at 1 frames per second
+r_animated <- magick::image_animate(r_joined, fps = 1)
+
+# view animated image
+r_animated
+
+```
+
+
+
+## Projection
+
+```{r}
+for (i in seq(0,pi*4,length.out=20)) {
+  t<-rbind(binded,rep(0,ncol(binded)))
+  z<-apply(t,2,function(x) leftMultiply(x,matrix(c(1,0,0,0,cos(i),-sin(i),0,sin(i),cos(i)),nrow=3,ncol=3)))
+   #plot(z[2,]~z[1,], xlim=c(-3,3), ylim=c(-3,3), col='Blue')
+}
+
+
+img_p <- list("42.png", "43.png", "44.png",
+            "45.png", "46.png", "47.png", 
+            "48.png","49.png","50.png","51.png","52.png","53.png","54.png","55.png","56.png","57.png","58.png","59.png","60.png","61.png")
+
+list_p <- lapply(img_p, magick::image_read)
+
+# join the images together
+p_joined <- magick::image_join(list_p)
+
+# animate at 1 frames per second
+p_animated <- magick::image_animate(p_joined, fps = 1)
+
+# view animated image
+p_animated
+```
