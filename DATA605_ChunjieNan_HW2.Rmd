@@ -1,0 +1,188 @@
+---
+title: "DATA605_ChunjieNan_HW2"
+author: "Chunjie Nan"
+date: "2/6/2022"
+output: html_document
+---
+
+
+### Problem Set 1.
+
+(1) Show that $A^TA \ne  AA^T$in general. (Proof and demonstration.)
+
+(2) For a special type of square matrix A, we get $A^T A = AA^T$. Under what conditions
+could this be true? (Hint: The Identity matrix I is an example of such a matrix).
+Please typeset your response using LaTeX mode in RStudio. If you do it in paper, please
+either scan or take a picture of the work and submit it. Please ensure that your image is
+legible and that your submissions are named using your  rst initial, last name, assignment
+and problem set within the assignment. E.g. LFulton_Assignment2_PS1.png
+
+Let's create matrix to see if the the equation works or not.
+
+```{r}
+set.seed(1000)
+A<-matrix(sample(30,16, replace=F), nrow=4, byrow=T)
+A
+```
+
+Transpose the A.
+
+```{r}
+AT<-t(A)
+AT
+
+```
+
+Using matrix multiplication to get ATA and AAT.
+
+```{r}
+ATA<-AT %*% A
+ATA
+
+AAT<-A %*% AT
+AAT
+```
+
+Compare the result of ATA and AAT.
+```{r}
+ATA==AAT
+```
+
+As the result shows that the AAT is not equal to ATA. 
+
+
+
+
+according to the following website, [phrase]['https://www.r-bloggers.com/how-do-i-create-the-identity-matrix-in-r/'] 
+
+In linear algebra, a symmetric matrix is a square matrix that is equal to its transpose.
+A = AT, then ATA = AAT; every square diagnomal matrix is symmetric. 
+
+
+```{r}
+a<-diag(5)
+a
+
+at<-t(a)
+at
+
+```
+I can see that the at and a is equal, there for, it is going to make the AAT and ATA equal.
+
+```{r}
+aat<- a %*% at
+aat
+
+ata<-at %*% a
+ata
+```
+
+compare the ata and aat.
+```{r}
+ata == aat
+
+```
+
+Let me try with another symmetric matrix with different numbers.
+
+```{r}
+b<-matrix(c(5,0,0,0,65,0,0,0,7),nrow = 3, byrow = T)
+b
+
+bt<-t(b)
+bt
+```
+
+```{r}
+bbt<-b %*% bt
+bbt
+
+btb<-bt %*% b
+btb
+
+bbt == btb
+```
+
+With trying other numbers, it still works. so, from the left to to right bottom has to be the same numbers
+in order to make AAT and ATA equal, rest of the numbers should be 0. 
+
+
+
+
+### Problem Set 2.
+
+Matrix factorization is a very important problem. There are supercomputers built just
+to do matrix factorizations. Every second you are on an airplane, matrices are being
+factorized. Radars that trackights use a technique called Kalman Filtering. At the heart
+of Kalman Filtering is a Matrix Factorization operation. Kalman Filters are solving linear
+systems of equations when they track your flight using radars.
+Write an R function to factorize a square matrix A into LU or LDU, whichever you
+prefer. Please submit your response in an R Markdown document using our class naming
+convention, E.g. LFulton_Assignment2_PS2.png
+You don't have to worry about permuting rows of A and you can assume that A is less
+than 5x5, if you need to hard-code any variables in your code. If you doing the entire
+assignment in R, then please submit only one markdown document for both the problems.
+
+
+```{r}
+LU <- function(A){
+  
+  # Check if matrix is square.
+  
+  if(dim(A)[1]!=dim(A)[2]){
+  return('The matrix is not square')
+  }
+  
+  r <- nrow(A)   
+  U <- A
+  L <- diag(r)  
+
+  for (x in c(1:r)){
+    for(y in c(2:r)){
+      if(y > x){
+          row <- U[x,]
+        multiplier <- U[y, x] / row[x]
+        U[y,] <- U[y,] - (multiplier * row)
+        L[y,x] <- multiplier
+      }
+    }
+  }
+  
+  return(list(L=L, U=U))
+}
+
+```
+
+
+Get the matix A 
+```{r}
+set.seed(1000)
+A <- matrix((sample(9,9, replace = F)), nrow=3, byrow=TRUE)
+A
+
+```
+
+
+Test the function with the samples. 
+
+```{r}
+LUA<-LU(A)
+LUA
+```
+
+
+Use lu.decomposition() function to see if any difference. 
+
+```{r}
+library(matrixcalc)
+A<-matrix(c(4,3,6,8,5,7,1,2,9), nrow = 3, byrow = T)
+A
+
+LUDA<-lu.decomposition(A)
+LUDA
+
+LUDA$L == LUA$L
+LUDA$U == LUA$U
+```
+
+According to the comparison, the LUDA and LUA are equal, and the function works. 
